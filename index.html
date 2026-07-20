@@ -866,10 +866,6 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .report-submit-btn{background:linear-gradient(135deg,#ff4d4d,#b91c1c);color:#fff;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 16px rgba(255,68,68,0.3);}
 .report-submit-btn:hover{transform:scale(1.02);box-shadow:0 6px 20px rgba(255,68,68,0.45);}
 .report-submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.report-quick-options{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
-.report-chip{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.75);padding:6px 11px;border-radius:20px;font-size:11px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:0.3px;cursor:pointer;transition:all 0.2s;}
-.report-chip:hover{border-color:rgba(255,68,68,0.4);color:#fff;}
-.report-chip.active{background:rgba(255,68,68,0.22);border-color:#ff4d4d;color:#fff;}
 
 /* NOTICE BOX */
 .notice-box{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(26,86,255,0.08),rgba(245,197,24,0.05));border:1px solid rgba(26,86,255,0.35);border-left:4px solid var(--red);border-radius:12px;padding:14px 16px;margin:14px 0;cursor:pointer;transition:all 0.25s;position:relative;}
@@ -1021,8 +1017,6 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 
 .report-item{background:rgba(255,68,68,0.03);border:1px solid rgba(255,68,68,0.18);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
 .report-item.fixed{background:rgba(34,197,94,0.03);border-color:rgba(34,197,94,0.18);}
-.fixed-tag-anim{animation:badgeDropIn 0.55s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 12px rgba(34,197,94,0.3);}
-@keyframes badgeDropIn{0%{transform:translateY(-140%) scale(0.8);opacity:0;}60%{transform:translateY(6%) scale(1.05);opacity:1;}80%{transform:translateY(-3%) scale(0.98);}100%{transform:translateY(0) scale(1);}}
 .report-item-movie{font-size:13px;font-weight:700;color:#fff;font-family:'Rajdhani',sans-serif;margin-bottom:3px;}
 .report-item-info{font-size:11px;color:var(--gray);margin-bottom:8px;}
 .report-item-note{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:10px;line-height:1.6;}
@@ -1462,7 +1456,10 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
       <div class="browse-sec-hdr">
         <span class="browse-sec-icon">🎬</span>
         <span class="browse-sec-title">LATEST <span style="color:var(--red);">MOVIES</span></span>
-        <span style="margin-left:auto;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;">NEW FIRST</span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+          <button onclick="switchSection('movies')" style="background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.4);color:#fff;padding:6px 13px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap;">ALL MOVIES <i class="fas fa-chevron-right" style="font-size:9px;"></i></button>
+          <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;">NEW FIRST</span>
+        </span>
       </div>
       <div class="browse-grid" id="homeMoviesGrid"></div>
       <div style="text-align:center;padding:8px 0 12px;" id="homeMoviesMoreWrap">
@@ -1482,7 +1479,10 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
       <div class="browse-sec-hdr">
         <span class="browse-sec-icon">📺</span>
         <span class="browse-sec-title">LATEST <span style="color:var(--red);">TV SHOWS</span></span>
-        <span style="margin-left:auto;font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;">NEW FIRST</span>
+        <span style="margin-left:auto;display:flex;align-items:center;gap:10px;">
+          <button onclick="switchSection('tvseries')" style="background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.4);color:#fff;padding:6px 13px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap;">ALL TV SERIES <i class="fas fa-chevron-right" style="font-size:9px;"></i></button>
+          <span style="font-size:10px;font-family:'Rajdhani',sans-serif;font-weight:700;color:rgba(255,255,255,0.3);letter-spacing:1px;">NEW FIRST</span>
+        </span>
       </div>
       <div class="browse-grid" id="homeTvGrid"></div>
       <div style="text-align:center;padding:8px 0 12px;" id="homeTvMoreWrap">
@@ -1497,6 +1497,7 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
       <div class="sec-wrap" style="padding-bottom:0;">
         <div class="sec-hdr">
           <div class="sec-title"><div class="sec-line"></div><span>🎬 MOVIE <span class="accent">COLLECTIONS</span></span></div>
+          <button onclick="document.getElementById('colTimeline').scrollIntoView({behavior:'smooth',block:'center'});" style="background:rgba(229,9,20,0.12);border:1px solid rgba(229,9,20,0.4);color:#fff;padding:6px 13px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;display:flex;align-items:center;gap:6px;white-space:nowrap;">ALL COLLECTIONS <i class="fas fa-chevron-right" style="font-size:9px;"></i></button>
         </div>
       </div>
       <div class="col-section">
@@ -2424,14 +2425,6 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
   <div class="report-modal-inner">
     <h3><i class="fas fa-flag"></i> REPORT BROKEN LINK</h3>
     <p id="reportModalSub">Let us know what's wrong — we'll fix it ASAP! 🔧</p>
-    <div class="report-quick-options" id="reportQuickOptions">
-      <button type="button" class="report-chip" data-text="Broken Link — video not opening / playing.">🔗 Broken Link</button>
-      <button type="button" class="report-chip" data-text="Wrong Video — this is not the correct movie/episode.">🎬 Wrong Video</button>
-      <button type="button" class="report-chip" data-text="Buffering — video keeps loading / lagging.">⏳ Buffering</button>
-      <button type="button" class="report-chip" data-text="No Audio — video plays but there is no sound.">🔇 No Audio</button>
-      <button type="button" class="report-chip" data-text="Wrong Subtitle — subtitles missing or out of sync.">💬 Subtitle</button>
-      <button type="button" class="report-chip" data-text="Low Quality — video quality is poor.">📉 Low Quality</button>
-    </div>
     <textarea id="reportNote" placeholder="What's the issue? (optional) — eg: Link not opening, buffering, wrong video..."></textarea>
     <div class="report-modal-btns">
       <button class="report-cancel-btn" onclick="closeReportModal()">CANCEL</button>
@@ -3497,7 +3490,7 @@ function clearTop10Search(){document.getElementById('top10SearchInput').value=''
 // Override renderHero and renderTop10 to use admin-set lists
 const _origRenderHero=window.initHome;
 function renderHeroWithAdmin(){
-  const pinned=adminBannerList.map(id=>(window.allContent||[]).find(c=>String(c.id||c.fbKey)===id)).filter(Boolean);
+  const pinned=adminBannerList.map(id=>(window.allContent||[]).find(c=>String(c.id||c.fbKey)===id)).filter(Boolean).filter(c=>!c.isAdult);
   const auto=(window.allContent||[]).filter(c=>(c.qimages&&c.qimages.length||c.thumb)&&!c.isAdult);
   const items=pinned.length?pinned.slice(0,5):auto.slice(0,5);
   if(!items.length)return;
@@ -3526,7 +3519,7 @@ function renderHeroWithAdmin(){
   clearInterval(heroTimer);heroIdx=0;heroTimer=setInterval(()=>{heroIdx=(heroIdx+1)%items.length;goSlide(heroIdx);},5500);
 }
 function renderTop10WithAdmin(){
-  const pinned=adminTop10List.map(id=>(window.allContent||[]).find(c=>String(c.id||c.fbKey)===id)).filter(Boolean);
+  const pinned=adminTop10List.map(id=>(window.allContent||[]).find(c=>String(c.id||c.fbKey)===id)).filter(Boolean).filter(c=>!c.isAdult);
   const auto=(window.allContent||[]).filter(c=>!c.isAdult).slice(0,10);
   const items=pinned.length?pinned.slice(0,10):auto;
   const ql={WEB:'web',HDRIP:'hdrip',BLURAY:'bluray',CAM:'cam',SINHALADUB:'sinhaladub'};
@@ -4179,7 +4172,7 @@ function renderAdminReportList(){
   if(!items.length){el.innerHTML='<div style="color:var(--gray);font-size:12px;padding:20px;text-align:center;">No reports found. 🎉</div>';return;}
   el.innerHTML=items.map(r=>`
     <div class="report-item${r.status==='fixed'?' fixed':''}">
-      ${r.status==='fixed'?'<span class="fixed-tag fixed-tag-anim">✅ FIXED</span>':'<span class="open-tag">🚨 OPEN</span>'}
+      ${r.status==='fixed'?'<span class="fixed-tag">✅ FIXED</span>':'<span class="open-tag">🚨 OPEN</span>'}
       <div class="report-item-movie">🎬 ${r.title||'Unknown'} ${r.label?'— '+r.label:''}</div>
       <div class="report-item-info">${timeAgo(r.ts||0)}</div>
       ${r.link?`<a class="report-item-link" href="${r.link}" target="_blank"><i class="fas fa-link"></i> Test Link</a>`:''}
@@ -4222,45 +4215,12 @@ function openReportModal(label,link){
   if(sub)sub.textContent=`"${_reportCtx.title}" — ${_reportCtx.label} — we'll fix it ASAP! 🔧`;
   const note=document.getElementById('reportNote');
   if(note)note.value='';
-  document.querySelectorAll('#reportQuickOptions .report-chip').forEach(c=>c.classList.remove('active'));
   document.getElementById('reportModal').classList.add('open');
 }
 function closeReportModal(){
   document.getElementById('reportModal').classList.remove('open');
   _reportCtx=null;
 }
-let _reportTypeTimer=null;
-function _typeIntoReportNote(text){
-  const note=document.getElementById('reportNote');
-  if(!note)return;
-  if(_reportTypeTimer)clearInterval(_reportTypeTimer);
-  note.value='';
-  let i=0;
-  _reportTypeTimer=setInterval(()=>{
-    note.value+=text[i]||'';
-    i++;
-    if(i>=text.length)clearInterval(_reportTypeTimer);
-  },14);
-}
-document.addEventListener('DOMContentLoaded',()=>{
-  const wrap=document.getElementById('reportQuickOptions');
-  if(wrap){
-    wrap.addEventListener('click',(e)=>{
-      const chip=e.target.closest('.report-chip');
-      if(!chip)return;
-      const wasActive=chip.classList.contains('active');
-      wrap.querySelectorAll('.report-chip').forEach(c=>c.classList.remove('active'));
-      if(wasActive){
-        if(_reportTypeTimer)clearInterval(_reportTypeTimer);
-        const note=document.getElementById('reportNote');
-        if(note)note.value='';
-      }else{
-        chip.classList.add('active');
-        _typeIntoReportNote(chip.dataset.text||'');
-      }
-    });
-  }
-});
 async function submitLinkReport(){
   if(!_reportCtx)return;
   const btn=document.getElementById('reportSubmitBtn');
@@ -4589,7 +4549,7 @@ function filterSMCat(cat){
 }
 function renderSinhalaMoviesPage(){
   const all=window.allContent||[];
-  let items=all.filter(c=>c.sinhalaMovie||c.isSinhalaMovie||(c.language||'').toLowerCase().includes('sinhala')&&(c.country||'').toLowerCase().includes('sri lanka')||(c.country||'').toLowerCase().includes('sinhala'));
+  let items=all.filter(c=>!c.isAdult&&(c.sinhalaMovie||c.isSinhalaMovie||(c.language||'').toLowerCase().includes('sinhala')&&(c.country||'').toLowerCase().includes('sri lanka')||(c.country||'').toLowerCase().includes('sinhala')));
   if(_smCatFilter&&_smCatFilter!=='all') items=items.filter(c=>c.category===_smCatFilter);
   items.sort((a,b)=>{const ta=Number(a.id)||0,tb=Number(b.id)||0;if(ta&&tb)return tb-ta;return(b.fbKey||'').localeCompare(a.fbKey||'');});
   const countEl=document.getElementById('sinhalaMoviesCount');
@@ -4602,7 +4562,7 @@ function renderSinhalaMoviesPage(){
 }
 function renderSinhalaDubPage(){
   const all=window.allContent||[];
-  const items=all.filter(c=>c.sinhalaDub||c.qtype==='SINHALADUB'||(c.language||'').toLowerCase().includes('sinhala dub')).sort((a,b)=>{const ta=Number(a.id)||0,tb=Number(b.id)||0;if(ta&&tb)return tb-ta;return(b.fbKey||'').localeCompare(a.fbKey||'');});
+  const items=all.filter(c=>!c.isAdult&&(c.sinhalaDub||c.qtype==='SINHALADUB'||(c.language||'').toLowerCase().includes('sinhala dub'))).sort((a,b)=>{const ta=Number(a.id)||0,tb=Number(b.id)||0;if(ta&&tb)return tb-ta;return(b.fbKey||'').localeCompare(a.fbKey||'');});
   const countEl=document.getElementById('sinhalaDubPageCount');
   if(countEl) countEl.textContent=items.length+' results';
   const grid=document.getElementById('sinhalaDubPageGrid');
