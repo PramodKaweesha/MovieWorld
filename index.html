@@ -1261,46 +1261,7 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .wa-skip:hover{color:rgba(255,255,255,0.5);}
 
 /* ===== MOVIE WORLD BLUE THEME ENHANCEMENTS ===== */
-body{
-  position:relative;
-  background:linear-gradient(180deg,#060b16 0%,#0a1120 45%,#060b16 100%);
-}
-body::before{
-  content:'';
-  position:fixed;
-  inset:-15%;
-  z-index:-2;
-  pointer-events:none;
-  background:
-    radial-gradient(ellipse 55% 45% at 18% 12%, rgba(26,86,255,0.20), transparent 62%),
-    radial-gradient(ellipse 50% 42% at 88% 78%, rgba(59,130,246,0.16), transparent 62%),
-    radial-gradient(ellipse 38% 38% at 58% 45%, rgba(255,255,255,0.045), transparent 65%);
-  filter:blur(70px);
-  animation:mwGlow 30s ease-in-out infinite alternate;
-  will-change:transform;
-}
-body::after{
-  content:'';
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.05) 47%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.05) 53%,transparent 70%);
-  background-size:260% 260%;
-  animation:mwSheen 11s linear infinite;
-  mix-blend-mode:screen;
-  opacity:0.6;
-}
-@keyframes mwGlow{
-  0%{transform:translate(0,0) scale(1);}
-  50%{transform:translate(2.5%,-2%) scale(1.06);}
-  100%{transform:translate(-2%,2.5%) scale(1.02);}
-}
-@keyframes mwSheen{
-  0%{background-position:160% -60%;}
-  100%{background-position:-60% 160%;}
-}
-@media(max-width:900px){body::before{filter:blur(46px);} body::after{opacity:0.4;}}
+body{background:linear-gradient(160deg,#070d1a 0%,#0d1526 55%,#081022 100%);}
 #sidebar{background:linear-gradient(180deg,#080f20,#060c18) !important;border-right:1px solid rgba(26,86,255,0.2) !important;}
 .top-header{background:rgba(7,13,26,0.97) !important;border-bottom:1px solid rgba(26,86,255,0.12) !important;}
 .search-bar{border-color:rgba(26,86,255,0.15) !important;}
