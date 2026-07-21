@@ -310,12 +310,14 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .card-info .cs{font-size:10px;color:var(--gray);display:flex;gap:5px;margin-top:2px;}
 
 /* DETAIL PAGE */
-#detail-page{min-height:100vh;padding-top:60px;}
-.breadcrumb{padding:10px 28px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04);}
+#detail-page{min-height:100vh;position:relative;}
+.breadcrumb{position:absolute;top:70px;right:20px;z-index:8;padding:7px 15px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(10,10,10,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;max-width:calc(100% - 110px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.breadcrumb .bc-cur{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .breadcrumb a{color:var(--gray);text-decoration:none;cursor:pointer;transition:color 0.2s;}
 .breadcrumb a:hover{color:var(--red);}
 .bc-sep{color:rgba(255,255,255,0.18);}
 .bc-cur{color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+@media(max-width:900px){.breadcrumb{top:60px;right:12px;padding:6px 12px;font-size:10px;}}
 
 /* ===== QUALITY IMAGE CAROUSEL ===== */
 .qi-carousel{position:relative;height:320px;overflow:hidden;background:#000;}
@@ -323,15 +325,20 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .qi-slide{position:absolute;inset:0;opacity:0;transition:opacity 0.9s ease;}
 .qi-slide.active{opacity:1;}
 .qi-slide img{width:100%;height:100%;object-fit:cover;filter:brightness(1) contrast(1.05) saturate(1.08);}
-.qi-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--black) 18%,transparent 70%),linear-gradient(to right,rgba(0,0,0,0.7),transparent 60%);}
+.qi-grad{position:absolute;inset:0;background:linear-gradient(to top,var(--black) 18%,transparent 70%),linear-gradient(to right,rgba(0,0,0,0.7),transparent 60%),linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,transparent 22%);}
 .qi-dots{position:absolute;bottom:14px;right:18px;display:flex;gap:6px;z-index:5;}
 .qi-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.25);cursor:pointer;transition:all 0.3s;}
 .qi-dot.active{background:var(--red);width:16px;border-radius:3px;}
 
 /* POSTER ROW */
-.dt-main{padding:0 28px 16px;}
-.dt-poster-row{display:flex;gap:24px;margin-top:-90px;position:relative;z-index:5;align-items:flex-end;}
-.dt-poster{flex:0 0 155px;height:232px;border-radius:12px;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.9);border:2px solid rgba(26,86,255,0.2);}
+.dt-main{padding:0 28px 16px;position:relative;}
+.dt-main::before{content:'';position:absolute;top:-160px;left:-40px;right:-40px;height:340px;z-index:0;pointer-events:none;background:radial-gradient(ellipse 55% 100% at 15% 20%,rgba(59,130,246,0.32),transparent 65%),radial-gradient(ellipse 45% 90% at 85% 10%,rgba(255,255,255,0.14),transparent 60%);filter:blur(48px);animation:dtGlowPulse 6s ease-in-out infinite alternate;}
+@keyframes dtGlowPulse{0%{opacity:0.55;transform:scale(1);}100%{opacity:1;transform:scale(1.1);}}
+.dt-poster-row{display:flex;gap:24px;margin-top:-40px;position:relative;z-index:5;align-items:flex-end;}
+.dt-poster{flex:0 0 155px;height:232px;border-radius:12px;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 26px rgba(59,130,246,0.22);border:2px solid rgba(26,86,255,0.35);animation:dtPosterGlow 4s ease-in-out infinite alternate;}
+.dt-poster-corner{position:absolute;top:70px;left:14px;width:76px;height:114px;border-radius:9px;object-fit:cover;box-shadow:0 10px 26px rgba(0,0,0,0.85),0 0 18px rgba(59,130,246,0.3);border:2px solid rgba(26,86,255,0.5);z-index:6;animation:dtPosterGlow 4s ease-in-out infinite alternate;}
+@media(max-width:900px){.dt-poster-corner{top:62px;left:10px;width:58px;height:87px;}}
+@keyframes dtPosterGlow{0%{box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 22px rgba(59,130,246,0.2);border-color:rgba(26,86,255,0.3);}100%{box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 46px rgba(147,197,253,0.5),0 0 70px rgba(255,255,255,0.16);border-color:rgba(191,219,254,0.6);}}
 .dt-info-col{flex:1;padding-bottom:4px;}
 .dt-title{font-family:'Bebas Neue',cursive;font-size:clamp(26px,3.5vw,44px);line-height:1.2;letter-spacing:2px;color:#fff;margin-bottom:8px;}
 .dt-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
@@ -797,11 +804,16 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .dl-play-btn:hover{background:var(--red);color:#fff;border-color:var(--red);transform:scale(1.01);box-shadow:0 4px 14px rgba(26,86,255,0.35);}
 .dl-actions-row{display:flex;gap:8px;margin-top:4px;margin-bottom:8px;}
 .dl-actions-row .dl-play-btn{margin:0;flex:1;}
-.dl-actions-row .link-fixed-tag{flex:1;}
 .report-flag-btn{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6b6b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;white-space:nowrap;transition:all 0.2s;display:flex;align-items:center;gap:6px;justify-content:center;}
 .report-flag-btn:hover{background:rgba(255,68,68,0.28);transform:scale(1.01);}
 .report-flag-btn.compact{flex:0 0 auto;padding:8px 12px;}
-.link-fixed-tag{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:var(--green);padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;white-space:nowrap;display:flex;align-items:center;gap:6px;justify-content:center;animation:fixedTagPop 0.35s ease;}
+.report-reason-label{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.report-reason-label i{color:var(--gold);}
+.report-reason-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.report-reason-chip{padding:7px 13px;border-radius:20px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.65);font-size:11.5px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;}
+.report-reason-chip:hover{border-color:rgba(255,68,68,0.4);color:#fff;}
+.report-reason-chip.active{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 3px 12px rgba(255,68,68,0.3);}
+.link-fixed-tag{background:rgba(34,197,94,0.14);border:1px solid rgba(34,197,94,0.35);color:var(--green);padding:2px 9px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:0.5px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;vertical-align:middle;animation:fixedTagPop 0.35s ease;}
 @keyframes fixedTagPop{from{opacity:0;transform:scale(0.85);}to{opacity:1;transform:scale(1);}}
 
 .content-list-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px;}
@@ -1249,7 +1261,46 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .wa-skip:hover{color:rgba(255,255,255,0.5);}
 
 /* ===== MOVIE WORLD BLUE THEME ENHANCEMENTS ===== */
-body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
+body{
+  position:relative;
+  background:linear-gradient(180deg,#060b16 0%,#0a1120 45%,#060b16 100%);
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:-15%;
+  z-index:-2;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 45% at 18% 12%, rgba(26,86,255,0.20), transparent 62%),
+    radial-gradient(ellipse 50% 42% at 88% 78%, rgba(59,130,246,0.16), transparent 62%),
+    radial-gradient(ellipse 38% 38% at 58% 45%, rgba(255,255,255,0.045), transparent 65%);
+  filter:blur(70px);
+  animation:mwGlow 30s ease-in-out infinite alternate;
+  will-change:transform;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.05) 47%,rgba(255,255,255,0.09) 50%,rgba(255,255,255,0.05) 53%,transparent 70%);
+  background-size:260% 260%;
+  animation:mwSheen 11s linear infinite;
+  mix-blend-mode:screen;
+  opacity:0.6;
+}
+@keyframes mwGlow{
+  0%{transform:translate(0,0) scale(1);}
+  50%{transform:translate(2.5%,-2%) scale(1.06);}
+  100%{transform:translate(-2%,2.5%) scale(1.02);}
+}
+@keyframes mwSheen{
+  0%{background-position:160% -60%;}
+  100%{background-position:-60% 160%;}
+}
+@media(max-width:900px){body::before{filter:blur(46px);} body::after{opacity:0.4;}}
 #sidebar{background:linear-gradient(180deg,#080f20,#060c18) !important;border-right:1px solid rgba(26,86,255,0.2) !important;}
 .top-header{background:rgba(7,13,26,0.97) !important;border-bottom:1px solid rgba(26,86,255,0.12) !important;}
 .search-bar{border-color:rgba(26,86,255,0.15) !important;}
@@ -1764,11 +1815,11 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
     </div>
     <!-- Quality Image Carousel -->
     <div class="qi-carousel" id="qiCarousel">
+      <img id="dtPoster" class="dt-poster-corner" src="" alt="">
       <div class="qi-dots" id="qiDots"></div>
     </div>
     <div class="dt-main">
       <div class="dt-poster-row">
-        <img id="dtPoster" class="dt-poster" src="" alt="">
         <div class="dt-info-col">
           <div class="dt-title" id="dtTitle"></div>
           <div class="dt-tags" id="dtTags"></div>
@@ -2488,7 +2539,9 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
   <div class="report-modal-inner">
     <h3><i class="fas fa-flag"></i> REPORT BROKEN LINK</h3>
     <p id="reportModalSub">Let us know what's wrong — we'll fix it ASAP! 🔧</p>
-    <textarea id="reportNote" placeholder="What's the issue? (optional)" oninput="stopReportPlaceholderTyping()"></textarea>
+    <div class="report-reason-label"><i class="fas fa-bolt"></i> Quick select an issue</div>
+    <div class="report-reason-chips" id="reportReasonChips"></div>
+    <textarea id="reportNote" placeholder="What's the issue? (optional)" oninput="document.querySelectorAll('.report-reason-chip').forEach(c=>c.classList.remove('active'))"></textarea>
     <div class="report-modal-btns">
       <button class="report-cancel-btn" onclick="closeReportModal()">CANCEL</button>
       <button class="report-submit-btn" id="reportSubmitBtn" onclick="submitLinkReport()"><i class="fas fa-paper-plane"></i> SUBMIT</button>
@@ -3090,14 +3143,14 @@ function renderDetail(){
       <a href="${d.link}" target="_blank" class="dl-item" download onclick="if(window._trackDownload)window._trackDownload();">
         <div class="dl-icon"><i class="fas fa-download"></i></div>
         <div class="dl-info">
-          <h4>Direct &amp; Telegram Download Links</h4>
+          <h4>Direct &amp; Telegram Download Links <span class="link-fixed-tag" data-fixed-for="Download ${d.q}" style="display:none;"><i class="fas fa-check-circle"></i> FIXED</span></h4>
           <p>WEB-DL ${d.q}<span class="dot"></span>${d.size||''}<span class="dot"></span>${d.lang||''}</p>
         </div>
         <i class="fas fa-chevron-right dl-arrow"></i>
       </a>
       <div class="dl-actions-row">
         <button class="dl-play-btn" onclick="openDlPlayer('${d.link.replace(/'/g,"\\'")}','${(currentContent?.title||'').replace(/'/g,"\\'")} — ${d.q}')" title="Play this link directly"><i class="fas fa-play"></i> PLAY</button>
-        <button class="report-flag-btn" data-report-label="Download ${d.q}" onclick="openReportModal('Download ${d.q}','${d.link.replace(/'/g,"\\'")}')" title="Report this link as broken"><i class="fas fa-flag"></i> REPORT</button>
+        <button class="report-flag-btn" onclick="openReportModal('Download ${d.q}','${d.link.replace(/'/g,"\\'")}')" title="Report this link as broken"><i class="fas fa-flag"></i> REPORT</button>
       </div>`).join('');
     if(c.srt&&c.srt.trim())html+=`<a href="${c.srt}" target="_blank" class="dl-item srt-item" download onclick="if(window._trackDownload)window._trackDownload();"><div class="dl-icon"><i class="fas fa-closed-captioning"></i></div><div class="dl-info"><h4>🇱🇰 Sinhala Subtitle</h4><p>SRT file<span class="dot"></span>Download &amp; load in player</p></div><i class="fas fa-chevron-right dl-arrow"></i></a>`;
     dlList.innerHTML=html||'<div style="color:var(--gray);font-size:12px;padding:10px;">No download links yet.</div>';
@@ -3145,23 +3198,10 @@ function loadContentReports(c){
 }
 function applyReportBadges(){
   const reps=window._currentContentReports||[];
-  document.querySelectorAll('[data-report-label]').forEach(btn=>{
-    const label=btn.dataset.reportLabel;
+  document.querySelectorAll('[data-fixed-for]').forEach(tag=>{
+    const label=tag.dataset.fixedFor;
     const match=reps.filter(r=>r.label===label).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
-    let tag=btn.nextElementSibling;
-    if(!(tag&&tag.classList&&tag.classList.contains('link-fixed-tag')))tag=null;
-    if(match&&match.status==='fixed'){
-      btn.style.display='none';
-      if(!tag){
-        tag=document.createElement('span');
-        tag.className='link-fixed-tag';
-        tag.innerHTML='<i class="fas fa-check-circle"></i> FIXED';
-        btn.insertAdjacentElement('afterend',tag);
-      }
-    }else{
-      btn.style.display='';
-      if(tag)tag.remove();
-    }
+    tag.style.display=(match&&match.status==='fixed')?'inline-flex':'none';
   });
 }
 
@@ -3197,13 +3237,13 @@ function showEps(season){
       has720?`<a href="${ep.dl720}" class="ep-ql-btn p720" target="_blank" download onclick="if(window._trackDownload)window._trackDownload();"><div class="ql-icon"><i class="fas fa-download"></i></div><div><div class="ql-label">720p</div><div class="ql-size">${ep.sz720||''}</div></div></a><button class="dl-play-btn" onclick="openDlPlayer('${ep.dl720.replace(/'/g,"\\'")}','E${ep.ep} ${(ep.title||'').replace(/'/g,"\\'")} 720p')" style="margin-left:4px;"><i class="fas fa-play"></i></button>`:'',
     ].filter(Boolean).join('');
     return `<div class="ep-card">
-      <div class="ep-head"><div class="ep-n">E${ep.ep}</div><div><div class="ep-t">${ep.title||'Episode '+ep.ep}</div><div class="ep-d">${ep.desc||''}</div></div></div>
+      <div class="ep-head"><div class="ep-n">E${ep.ep}</div><div><div class="ep-t">${ep.title||'Episode '+ep.ep} <span class="link-fixed-tag" data-fixed-for="Episode ${ep.ep}" style="display:none;"><i class="fas fa-check-circle"></i> FIXED</span></div><div class="ep-d">${ep.desc||''}</div></div></div>
       <div class="ep-acts">
         ${qlButtons?`<div class="ep-ql-row">${qlButtons}</div>`:''}
         ${!qlButtons&&hasLegacy?`<a href="${ep.dlLink}" target="_blank" class="ep-dl" download onclick="if(window._trackDownload)window._trackDownload();"><div class="ep-dl-icon"><i class="fas fa-download"></i></div><div class="ep-dl-info"><h5>Download Episode</h5><p>${ep.dlSize||''}${ep.dlSize?' · ':''}E${ep.ep}</p></div></a>`:''}
         ${hasSrt?`<a href="${ep.srtLink}" target="_blank" class="ep-srt" download><div class="ep-srt-icon"><i class="fas fa-closed-captioning"></i></div><div class="ep-srt-info"><h5>🇱🇰 Sinhala Subtitle</h5><p>SRT download</p></div></a>`:''}
         ${!hasAny&&!hasSrt?'<div style="color:var(--gray);font-size:11px;padding:4px 0;">No links yet</div>':''}
-        ${hasAny?`<button class="report-flag-btn" data-report-label="Episode ${ep.ep}" style="margin-top:6px;width:100%;" onclick="openReportModal('Episode ${ep.ep}','${(ep.dl720||ep.dl480||ep.dl1080||ep.dlLink||'').replace(/'/g,"\\'")}')" title="Report this episode link as broken"><i class="fas fa-flag"></i> REPORT LINK</button>`:''}
+        ${hasAny?`<button class="report-flag-btn" style="margin-top:6px;width:100%;" onclick="openReportModal('Episode ${ep.ep}','${(ep.dl720||ep.dl480||ep.dl1080||ep.dlLink||'').replace(/'/g,"\\'")}')" title="Report this episode link as broken"><i class="fas fa-flag"></i> REPORT LINK</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -4421,43 +4461,49 @@ function openReportModal(label,link){
   if(sub)sub.textContent=`"${_reportCtx.title}" — ${_reportCtx.label} — we'll fix it ASAP! 🔧`;
   const note=document.getElementById('reportNote');
   if(note)note.value='';
+  renderReportReasonChips();
   document.getElementById('reportModal').classList.add('open');
-  startReportPlaceholderTyping();
 }
 function closeReportModal(){
   document.getElementById('reportModal').classList.remove('open');
-  stopReportPlaceholderTyping();
+  clearTimeout(_reportTypeTimer);
   _reportCtx=null;
 }
 
-/* ===== ANIMATED TYPING PLACEHOLDER — Report Note ===== */
-let _reportPhTimer=null;
-const _reportPhPhrases=['Link not opening 🔗','Video keeps buffering ⏳','Wrong video shown 🎬','Download link expired ❌','Video quality is bad 📉','Audio not working 🔇'];
-function startReportPlaceholderTyping(){
+/* ===== QUICK-SELECT REASON CHIPS — types the chosen reason into the note field ===== */
+const _reportReasons=[
+  {emoji:'❌',text:'Link Not Opening'},
+  {emoji:'🔗',text:'Link Broken'},
+  {emoji:'▶️',text:'Video Not Playing'},
+  {emoji:'⏳',text:'Video Buffering'},
+  {emoji:'🎬',text:'Wrong Video'},
+  {emoji:'⌛',text:'Download Expired'},
+  {emoji:'🔇',text:'No Audio'},
+  {emoji:'📉',text:'Poor Quality'}
+];
+function renderReportReasonChips(){
+  const wrap=document.getElementById('reportReasonChips');
+  if(!wrap)return;
+  wrap.innerHTML=_reportReasons.map((r,i)=>`<button type="button" class="report-reason-chip" onclick="selectReportReason(${i},this)">${r.emoji} ${r.text}</button>`).join('');
+}
+let _reportTypeTimer=null;
+function selectReportReason(idx,btn){
+  const wasActive=btn.classList.contains('active');
+  document.querySelectorAll('.report-reason-chip').forEach(c=>c.classList.remove('active'));
+  clearTimeout(_reportTypeTimer);
   const ta=document.getElementById('reportNote');
   if(!ta)return;
-  stopReportPlaceholderTyping();
-  let pIdx=0,cIdx=0,deleting=false;
+  if(wasActive){ta.value='';return;}
+  btn.classList.add('active');
+  const full=_reportReasons[idx].emoji+' '+_reportReasons[idx].text;
+  ta.value='';
+  let i=0;
   const tick=()=>{
-    const full=_reportPhPhrases[pIdx];
-    let delay=deleting?28:55;
-    if(!deleting){
-      cIdx++;
-      ta.placeholder=full.slice(0,cIdx);
-      if(cIdx===full.length){deleting=true;delay=1500;}
-    }else{
-      cIdx--;
-      ta.placeholder=full.slice(0,cIdx);
-      if(cIdx===0){deleting=false;pIdx=(pIdx+1)%_reportPhPhrases.length;delay=300;}
-    }
-    _reportPhTimer=setTimeout(tick,delay);
+    i++;
+    ta.value=full.slice(0,i);
+    if(i<full.length)_reportTypeTimer=setTimeout(tick,26);
   };
   tick();
-}
-function stopReportPlaceholderTyping(){
-  if(_reportPhTimer){clearTimeout(_reportPhTimer);_reportPhTimer=null;}
-  const ta=document.getElementById('reportNote');
-  if(ta&&!ta.value)ta.placeholder="What's the issue? (optional)";
 }
 async function submitLinkReport(){
   if(!_reportCtx)return;
@@ -5094,12 +5140,12 @@ function renderStreamSection(c){
     </div>`).join('');
   el.innerHTML=`
     <div class="stream-sec-hdr">
-      <div class="stream-sec-title"><i class="fas fa-play-circle"></i> STREAM ONLINE <span class="stream-online-tag">LIVE</span></div>
+      <div class="stream-sec-title"><i class="fas fa-play-circle"></i> STREAM ONLINE <span class="stream-online-tag">LIVE</span> <span class="link-fixed-tag" id="streamFixedTag" data-fixed-for="Stream ${defaultQ}P" style="display:none;"><i class="fas fa-check-circle"></i> FIXED</span></div>
     </div>
     <div class="stream-quality-row">${qualityCards}</div>
     <div class="stream-launch-row">
       <button class="stream-play-btn" onclick="launchDetailStream()"><i class="fas fa-play"></i> PLAY NOW</button>
-      <button class="report-flag-btn" data-report-label="Stream ${defaultQ}P" onclick="reportStreamLink()" title="Report this stream link as broken"><i class="fas fa-flag"></i> REPORT ISSUE</button>
+      <button class="report-flag-btn" onclick="reportStreamLink()" title="Report this stream link as broken"><i class="fas fa-flag"></i> REPORT ISSUE</button>
     </div>`;
   el.dataset.links=JSON.stringify(links);
   el.dataset.q=defaultQ;
@@ -5109,8 +5155,8 @@ function selectStreamQ(el,q){
   document.querySelectorAll('.stream-q-card').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('streamSection').dataset.q=q;
-  const rBtn=document.querySelector('#streamSection .report-flag-btn');
-  if(rBtn){rBtn.dataset.reportLabel=`Stream ${q}P`;applyReportBadges();}
+  const tag=document.getElementById('streamFixedTag');
+  if(tag){tag.dataset.fixedFor=`Stream ${q}P`;applyReportBadges();}
 }
 function launchDetailStream(){
   const el=document.getElementById('streamSection');
