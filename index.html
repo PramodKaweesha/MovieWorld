@@ -311,16 +311,17 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 
 /* DETAIL PAGE */
 #detail-page{min-height:100vh;position:relative;}
-.breadcrumb{position:absolute;top:74px;left:24px;z-index:8;padding:7px 15px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(10,10,10,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;}
+.breadcrumb{position:fixed;top:72px;left:var(--sidebar-w);z-index:900;padding:6px 12px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(10,10,10,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:0 14px 14px 0;transition:left 0.3s;}
 .breadcrumb a{color:var(--gray);text-decoration:none;cursor:pointer;transition:color 0.2s;}
 .breadcrumb a:hover{color:var(--red);}
+#bcExtra{display:none;align-items:center;gap:8px;}
 .bc-sep{color:rgba(255,255,255,0.18);}
 .bc-cur{color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
-@media(max-width:900px){.breadcrumb{top:66px;left:14px;padding:6px 12px;font-size:10px;}}
+@media(max-width:900px){.breadcrumb{top:64px;left:0!important;padding:5px 10px;font-size:10px;}}
 
 /* ===== QUALITY IMAGE CAROUSEL ===== */
-.qi-carousel{position:relative;height:320px;overflow:hidden;background:#000;}
-@media(max-width:900px){.qi-carousel{height:200px;}}
+.qi-carousel{position:relative;height:400px;overflow:hidden;background:#000;}
+@media(max-width:900px){.qi-carousel{height:280px;}}
 .qi-slide{position:absolute;inset:0;opacity:0;transition:opacity 0.9s ease;}
 .qi-slide.active{opacity:1;}
 .qi-slide img{width:100%;height:100%;object-fit:cover;filter:brightness(1) contrast(1.05) saturate(1.08);}
@@ -1482,6 +1483,17 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
     </div>
   </div>
 
+  <!-- GLOBAL HOME BAR (always visible, sits right below header on every page) -->
+  <div class="breadcrumb" id="globalBreadcrumb">
+    <a onclick="showPage('home')"><i class="fas fa-home"></i> Home</a>
+    <span id="bcExtra">
+      <span class="bc-sep">›</span>
+      <a id="bcType" onclick="showPage('home')">Movies</a>
+      <span class="bc-sep">›</span>
+      <span class="bc-cur" id="bcTitle">—</span>
+    </span>
+  </div>
+
   <!-- HOME -->
   <div id="home-page" class="page active">
     <section id="hero">
@@ -1764,13 +1776,6 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
 
   <!-- DETAIL PAGE -->
   <div id="detail-page" class="page">
-    <div class="breadcrumb">
-      <a onclick="showPage('home')"><i class="fas fa-home"></i> Home</a>
-      <span class="bc-sep">›</span>
-      <a id="bcType" onclick="showPage('home')">Movies</a>
-      <span class="bc-sep">›</span>
-      <span class="bc-cur" id="bcTitle">—</span>
-    </div>
     <!-- Quality Image Carousel -->
     <div class="qi-carousel" id="qiCarousel">
       <div class="qi-dots" id="qiDots"></div>
@@ -2672,7 +2677,7 @@ function requestAgeGate(id){pendingAdultId=id;document.getElementById('ageGate')
 function ageConfirm(yes){document.getElementById('ageGate').classList.remove('show');if(yes&&pendingAdultId){ageVerified.add(String(pendingAdultId));openDetail(pendingAdultId,true);}else{showToast('18+ content blocked.');pendingAdultId=null;}}
 
 /* ===== NAV ===== */
-function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p+'-page').classList.add('active');if(p==='home'){initHome();history.pushState(null,'','/');document.title='Movie World';}if(p==='admin')initAdmin();if(p==='request')initRequestPage();if(p==='watchlist')renderWatchlistPage();if(p==='recentlyviewed')renderRecentlyViewed();if(p==='adult'){history.pushState({page:'adult'},'','/ 18+');renderAdultPage();}if(p==='sinhaladub'){history.pushState({page:'sinhaladub'},'','/sinhaladub');renderSinhalaDubPage();}if(p==='sinhalamovies'){history.pushState({page:'sinhalamovies'},'','/sinhala-movies');document.title='Sinhala Movies — Movie World';renderSinhalaMoviesPage();}closeSB();window.scrollTo(0,0);}
+function showPage(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(p+'-page').classList.add('active');document.getElementById('bcExtra').style.display=(p==='detail')?'flex':'none';if(p==='home'){initHome();history.pushState(null,'','/');document.title='Movie World';}if(p==='admin')initAdmin();if(p==='request')initRequestPage();if(p==='watchlist')renderWatchlistPage();if(p==='recentlyviewed')renderRecentlyViewed();if(p==='adult'){history.pushState({page:'adult'},'','/ 18+');renderAdultPage();}if(p==='sinhaladub'){history.pushState({page:'sinhaladub'},'','/sinhaladub');renderSinhalaDubPage();}if(p==='sinhalamovies'){history.pushState({page:'sinhalamovies'},'','/sinhala-movies');document.title='Sinhala Movies — Movie World';renderSinhalaMoviesPage();}closeSB();window.scrollTo(0,0);}
 function openDetail(id,skipGate=false,fromPop=false){
   const item=(window.allContent||[]).find(c=>String(c.id)===String(id)||c.fbKey===id);
   if(!item)return;
@@ -3005,6 +3010,7 @@ function searchContent(q){currentFilter.q=q.toLowerCase().trim();if(!q.trim())do
 /* ===== DETAIL PAGE ===== */
 function renderDetail(){
   const c=currentContent;
+  document.getElementById('bcExtra').style.display='flex';
   document.getElementById('bcType').textContent=c.type==='tvseries'?'TV Series':'Movies';
   document.getElementById('bcTitle').textContent=c.title.length>28?c.title.substring(0,26)+'…':c.title;
 
