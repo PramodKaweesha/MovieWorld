@@ -797,9 +797,12 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .dl-play-btn:hover{background:var(--red);color:#fff;border-color:var(--red);transform:scale(1.01);box-shadow:0 4px 14px rgba(26,86,255,0.35);}
 .dl-actions-row{display:flex;gap:8px;margin-top:4px;margin-bottom:8px;}
 .dl-actions-row .dl-play-btn{margin:0;flex:1;}
+.dl-actions-row .link-fixed-tag{flex:1;}
 .report-flag-btn{background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6b6b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;white-space:nowrap;transition:all 0.2s;display:flex;align-items:center;gap:6px;justify-content:center;}
 .report-flag-btn:hover{background:rgba(255,68,68,0.28);transform:scale(1.01);}
 .report-flag-btn.compact{flex:0 0 auto;padding:8px 12px;}
+.link-fixed-tag{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:var(--green);padding:8px 14px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;white-space:nowrap;display:flex;align-items:center;gap:6px;justify-content:center;animation:fixedTagPop 0.35s ease;}
+@keyframes fixedTagPop{from{opacity:0;transform:scale(0.85);}to{opacity:1;transform:scale(1);}}
 
 .content-list-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px;}
 .c-item{background:var(--dark2);border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,0.05);}
@@ -1003,6 +1006,7 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .req-empty{text-align:center;padding:36px;color:var(--gray);font-size:13px;grid-column:1/-1;}
 .req-empty i{font-size:32px;margin-bottom:12px;display:block;color:rgba(255,255,255,0.12);}
 .req-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:14px;}
+@media(max-width:480px){.req-grid{grid-template-columns:repeat(2,1fr);gap:12px;}.req-card-title{font-size:14px;}.req-card-meta{font-size:10px;margin-bottom:8px;}.req-card-status{font-size:10px;padding:4px 11px;}.req-card-body{padding:11px 12px 13px;}}
 .req-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;transition:all 0.2s;}
 .req-card:hover{border-color:rgba(59,130,246,0.25);transform:translateY(-2px);}
 .req-card-poster{width:100%;aspect-ratio:2/3;background:var(--dark3);position:relative;overflow:hidden;}
@@ -1015,7 +1019,8 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .req-card-status.pending{background:rgba(245,197,24,0.12);color:var(--gold);border:1px solid rgba(245,197,24,0.25);}
 .req-card-status.completed{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25);}
 .req-card-status.notfound{background:rgba(255,77,77,0.12);color:#ff4d4d;border:1px solid rgba(255,77,77,0.25);}
-.req-card-reply{margin-top:9px;font-size:11px;color:rgba(255,255,255,0.45);line-height:1.5;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:7px;padding:7px 9px;}
+.req-card-reply{margin-top:9px;font-size:11.5px;color:rgba(255,255,255,0.8);line-height:1.55;background:rgba(34,197,94,0.08);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:8px 10px;}
+.req-card-reply-label{font-size:9px;font-weight:700;color:var(--green);letter-spacing:0.6px;margin-bottom:4px;font-family:'Rajdhani',sans-serif;text-transform:uppercase;display:flex;align-items:center;gap:4px;}
 .req-ac-wrap{position:relative;}
 .req-ac-list{position:absolute;top:100%;left:0;right:0;background:var(--dark3);border:1px solid rgba(59,130,246,0.3);border-radius:8px;margin-top:4px;max-height:260px;overflow-y:auto;z-index:60;box-shadow:0 10px 28px rgba(0,0,0,0.5);}
 .req-ac-item{display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);}
@@ -2483,7 +2488,7 @@ body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
   <div class="report-modal-inner">
     <h3><i class="fas fa-flag"></i> REPORT BROKEN LINK</h3>
     <p id="reportModalSub">Let us know what's wrong — we'll fix it ASAP! 🔧</p>
-    <textarea id="reportNote" placeholder="What's the issue? (optional) — eg: Link not opening, buffering, wrong video..."></textarea>
+    <textarea id="reportNote" placeholder="What's the issue? (optional)" oninput="stopReportPlaceholderTyping()"></textarea>
     <div class="report-modal-btns">
       <button class="report-cancel-btn" onclick="closeReportModal()">CANCEL</button>
       <button class="report-submit-btn" id="reportSubmitBtn" onclick="submitLinkReport()"><i class="fas fa-paper-plane"></i> SUBMIT</button>
@@ -3092,7 +3097,7 @@ function renderDetail(){
       </a>
       <div class="dl-actions-row">
         <button class="dl-play-btn" onclick="openDlPlayer('${d.link.replace(/'/g,"\\'")}','${(currentContent?.title||'').replace(/'/g,"\\'")} — ${d.q}')" title="Play this link directly"><i class="fas fa-play"></i> PLAY</button>
-        <button class="report-flag-btn" onclick="openReportModal('Download ${d.q}','${d.link.replace(/'/g,"\\'")}')" title="Report this link as broken"><i class="fas fa-flag"></i> REPORT</button>
+        <button class="report-flag-btn" data-report-label="Download ${d.q}" onclick="openReportModal('Download ${d.q}','${d.link.replace(/'/g,"\\'")}')" title="Report this link as broken"><i class="fas fa-flag"></i> REPORT</button>
       </div>`).join('');
     if(c.srt&&c.srt.trim())html+=`<a href="${c.srt}" target="_blank" class="dl-item srt-item" download onclick="if(window._trackDownload)window._trackDownload();"><div class="dl-icon"><i class="fas fa-closed-captioning"></i></div><div class="dl-info"><h4>🇱🇰 Sinhala Subtitle</h4><p>SRT file<span class="dot"></span>Download &amp; load in player</p></div><i class="fas fa-chevron-right dl-arrow"></i></a>`;
     dlList.innerHTML=html||'<div style="color:var(--gray);font-size:12px;padding:10px;">No download links yet.</div>';
@@ -3123,6 +3128,41 @@ function renderDetail(){
 
   loadComments(c.id||c.fbKey);
   renderStreamSection(c);
+  loadContentReports(c);
+}
+
+/* ===== USER-FACING: SHOW "FIXED ✅" BADGE WHEN ADMIN RESOLVES A REPORT ===== */
+window._currentContentReports=[];
+function loadContentReports(c){
+  if(!window._listenReports)return;
+  const cid=c.fbKey||c.id;
+  window._listenReports((reps)=>{
+    // Only apply if this listener still matches the movie currently open (avoid stale updates after navigating away)
+    if(!currentContent||(currentContent.fbKey||currentContent.id)!==cid)return;
+    window._currentContentReports=(reps||[]).filter(r=>String(r.contentId)===String(cid));
+    applyReportBadges();
+  });
+}
+function applyReportBadges(){
+  const reps=window._currentContentReports||[];
+  document.querySelectorAll('[data-report-label]').forEach(btn=>{
+    const label=btn.dataset.reportLabel;
+    const match=reps.filter(r=>r.label===label).sort((a,b)=>(b.ts||0)-(a.ts||0))[0];
+    let tag=btn.nextElementSibling;
+    if(!(tag&&tag.classList&&tag.classList.contains('link-fixed-tag')))tag=null;
+    if(match&&match.status==='fixed'){
+      btn.style.display='none';
+      if(!tag){
+        tag=document.createElement('span');
+        tag.className='link-fixed-tag';
+        tag.innerHTML='<i class="fas fa-check-circle"></i> FIXED';
+        btn.insertAdjacentElement('afterend',tag);
+      }
+    }else{
+      btn.style.display='';
+      if(tag)tag.remove();
+    }
+  });
 }
 
 function goQi(i){document.querySelectorAll('#qiCarousel .qi-slide').forEach((s,j)=>s.classList.toggle('active',j===i));document.querySelectorAll('.qi-dot').forEach((d,j)=>d.classList.toggle('active',j===i));qiIdx=i;}
@@ -3163,7 +3203,7 @@ function showEps(season){
         ${!qlButtons&&hasLegacy?`<a href="${ep.dlLink}" target="_blank" class="ep-dl" download onclick="if(window._trackDownload)window._trackDownload();"><div class="ep-dl-icon"><i class="fas fa-download"></i></div><div class="ep-dl-info"><h5>Download Episode</h5><p>${ep.dlSize||''}${ep.dlSize?' · ':''}E${ep.ep}</p></div></a>`:''}
         ${hasSrt?`<a href="${ep.srtLink}" target="_blank" class="ep-srt" download><div class="ep-srt-icon"><i class="fas fa-closed-captioning"></i></div><div class="ep-srt-info"><h5>🇱🇰 Sinhala Subtitle</h5><p>SRT download</p></div></a>`:''}
         ${!hasAny&&!hasSrt?'<div style="color:var(--gray);font-size:11px;padding:4px 0;">No links yet</div>':''}
-        ${hasAny?`<button class="report-flag-btn" style="margin-top:6px;width:100%;" onclick="openReportModal('Episode ${ep.ep}','${(ep.dl720||ep.dl480||ep.dl1080||ep.dlLink||'').replace(/'/g,"\\'")}')" title="Report this episode link as broken"><i class="fas fa-flag"></i> REPORT LINK</button>`:''}
+        ${hasAny?`<button class="report-flag-btn" data-report-label="Episode ${ep.ep}" style="margin-top:6px;width:100%;" onclick="openReportModal('Episode ${ep.ep}','${(ep.dl720||ep.dl480||ep.dl1080||ep.dlLink||'').replace(/'/g,"\\'")}')" title="Report this episode link as broken"><i class="fas fa-flag"></i> REPORT LINK</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -4131,7 +4171,7 @@ function renderRequestList(){
         <div class="req-card-title">${r.movieName||'Unknown'}</div>
         <div class="req-card-meta">${r.year||'N/A'} · ${r.language||r.name||'Anonymous'}</div>
         <span class="req-card-status ${statusCls}">${statusTxt}</span>
-        ${r.reply?`<div class="req-card-reply">💬 ${r.reply}</div>`:''}
+        ${r.reply?`<div class="req-card-reply"><div class="req-card-reply-label"><i class="fas fa-comment-dots"></i> Admin Reply</div>${r.reply}</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -4382,10 +4422,42 @@ function openReportModal(label,link){
   const note=document.getElementById('reportNote');
   if(note)note.value='';
   document.getElementById('reportModal').classList.add('open');
+  startReportPlaceholderTyping();
 }
 function closeReportModal(){
   document.getElementById('reportModal').classList.remove('open');
+  stopReportPlaceholderTyping();
   _reportCtx=null;
+}
+
+/* ===== ANIMATED TYPING PLACEHOLDER — Report Note ===== */
+let _reportPhTimer=null;
+const _reportPhPhrases=['Link not opening 🔗','Video keeps buffering ⏳','Wrong video shown 🎬','Download link expired ❌','Video quality is bad 📉','Audio not working 🔇'];
+function startReportPlaceholderTyping(){
+  const ta=document.getElementById('reportNote');
+  if(!ta)return;
+  stopReportPlaceholderTyping();
+  let pIdx=0,cIdx=0,deleting=false;
+  const tick=()=>{
+    const full=_reportPhPhrases[pIdx];
+    let delay=deleting?28:55;
+    if(!deleting){
+      cIdx++;
+      ta.placeholder=full.slice(0,cIdx);
+      if(cIdx===full.length){deleting=true;delay=1500;}
+    }else{
+      cIdx--;
+      ta.placeholder=full.slice(0,cIdx);
+      if(cIdx===0){deleting=false;pIdx=(pIdx+1)%_reportPhPhrases.length;delay=300;}
+    }
+    _reportPhTimer=setTimeout(tick,delay);
+  };
+  tick();
+}
+function stopReportPlaceholderTyping(){
+  if(_reportPhTimer){clearTimeout(_reportPhTimer);_reportPhTimer=null;}
+  const ta=document.getElementById('reportNote');
+  if(ta&&!ta.value)ta.placeholder="What's the issue? (optional)";
 }
 async function submitLinkReport(){
   if(!_reportCtx)return;
@@ -5027,15 +5099,18 @@ function renderStreamSection(c){
     <div class="stream-quality-row">${qualityCards}</div>
     <div class="stream-launch-row">
       <button class="stream-play-btn" onclick="launchDetailStream()"><i class="fas fa-play"></i> PLAY NOW</button>
-      <button class="report-flag-btn" onclick="reportStreamLink()" title="Report this stream link as broken"><i class="fas fa-flag"></i> REPORT ISSUE</button>
+      <button class="report-flag-btn" data-report-label="Stream ${defaultQ}P" onclick="reportStreamLink()" title="Report this stream link as broken"><i class="fas fa-flag"></i> REPORT ISSUE</button>
     </div>`;
   el.dataset.links=JSON.stringify(links);
   el.dataset.q=defaultQ;
+  applyReportBadges();
 }
 function selectStreamQ(el,q){
   document.querySelectorAll('.stream-q-card').forEach(c=>c.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('streamSection').dataset.q=q;
+  const rBtn=document.querySelector('#streamSection .report-flag-btn');
+  if(rBtn){rBtn.dataset.reportLabel=`Stream ${q}P`;applyReportBadges();}
 }
 function launchDetailStream(){
   const el=document.getElementById('streamSection');
