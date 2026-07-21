@@ -311,13 +311,12 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 
 /* DETAIL PAGE */
 #detail-page{min-height:100vh;position:relative;}
-.breadcrumb{position:absolute;top:70px;right:20px;z-index:8;padding:7px 15px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(10,10,10,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;max-width:calc(100% - 110px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.breadcrumb .bc-cur{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.breadcrumb{position:absolute;top:74px;left:24px;z-index:8;padding:7px 15px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gray);font-family:'Rajdhani',sans-serif;letter-spacing:1px;background:rgba(10,10,10,0.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:20px;}
 .breadcrumb a{color:var(--gray);text-decoration:none;cursor:pointer;transition:color 0.2s;}
 .breadcrumb a:hover{color:var(--red);}
 .bc-sep{color:rgba(255,255,255,0.18);}
 .bc-cur{color:rgba(255,255,255,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
-@media(max-width:900px){.breadcrumb{top:60px;right:12px;padding:6px 12px;font-size:10px;}}
+@media(max-width:900px){.breadcrumb{top:66px;left:14px;padding:6px 12px;font-size:10px;}}
 
 /* ===== QUALITY IMAGE CAROUSEL ===== */
 .qi-carousel{position:relative;height:320px;overflow:hidden;background:#000;}
@@ -334,10 +333,8 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .dt-main{padding:0 28px 16px;position:relative;}
 .dt-main::before{content:'';position:absolute;top:-160px;left:-40px;right:-40px;height:340px;z-index:0;pointer-events:none;background:radial-gradient(ellipse 55% 100% at 15% 20%,rgba(59,130,246,0.32),transparent 65%),radial-gradient(ellipse 45% 90% at 85% 10%,rgba(255,255,255,0.14),transparent 60%);filter:blur(48px);animation:dtGlowPulse 6s ease-in-out infinite alternate;}
 @keyframes dtGlowPulse{0%{opacity:0.55;transform:scale(1);}100%{opacity:1;transform:scale(1.1);}}
-.dt-poster-row{display:flex;gap:24px;margin-top:-40px;position:relative;z-index:5;align-items:flex-end;}
+.dt-poster-row{display:flex;gap:24px;margin-top:-90px;position:relative;z-index:5;align-items:flex-end;}
 .dt-poster{flex:0 0 155px;height:232px;border-radius:12px;object-fit:cover;box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 26px rgba(59,130,246,0.22);border:2px solid rgba(26,86,255,0.35);animation:dtPosterGlow 4s ease-in-out infinite alternate;}
-.dt-poster-corner{position:absolute;top:70px;left:14px;width:76px;height:114px;border-radius:9px;object-fit:cover;box-shadow:0 10px 26px rgba(0,0,0,0.85),0 0 18px rgba(59,130,246,0.3);border:2px solid rgba(26,86,255,0.5);z-index:6;animation:dtPosterGlow 4s ease-in-out infinite alternate;}
-@media(max-width:900px){.dt-poster-corner{top:62px;left:10px;width:58px;height:87px;}}
 @keyframes dtPosterGlow{0%{box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 22px rgba(59,130,246,0.2);border-color:rgba(26,86,255,0.3);}100%{box-shadow:0 24px 60px rgba(0,0,0,0.9),0 0 46px rgba(147,197,253,0.5),0 0 70px rgba(255,255,255,0.16);border-color:rgba(191,219,254,0.6);}}
 .dt-info-col{flex:1;padding-bottom:4px;}
 .dt-title{font-family:'Bebas Neue',cursive;font-size:clamp(26px,3.5vw,44px);line-height:1.2;letter-spacing:2px;color:#fff;margin-bottom:8px;}
@@ -1261,7 +1258,7 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .wa-skip:hover{color:rgba(255,255,255,0.5);}
 
 /* ===== MOVIE WORLD BLUE THEME ENHANCEMENTS ===== */
-body{background:linear-gradient(160deg,#070d1a 0%,#0d1526 55%,#081022 100%);}
+body{background:linear-gradient(180deg,#070d1a 0%,#0d1526 100%);}
 #sidebar{background:linear-gradient(180deg,#080f20,#060c18) !important;border-right:1px solid rgba(26,86,255,0.2) !important;}
 .top-header{background:rgba(7,13,26,0.97) !important;border-bottom:1px solid rgba(26,86,255,0.12) !important;}
 .search-bar{border-color:rgba(26,86,255,0.15) !important;}
@@ -1776,11 +1773,11 @@ body{background:linear-gradient(160deg,#070d1a 0%,#0d1526 55%,#081022 100%);}
     </div>
     <!-- Quality Image Carousel -->
     <div class="qi-carousel" id="qiCarousel">
-      <img id="dtPoster" class="dt-poster-corner" src="" alt="">
       <div class="qi-dots" id="qiDots"></div>
     </div>
     <div class="dt-main">
       <div class="dt-poster-row">
+        <img id="dtPoster" class="dt-poster" src="" alt="">
         <div class="dt-info-col">
           <div class="dt-title" id="dtTitle"></div>
           <div class="dt-tags" id="dtTags"></div>
