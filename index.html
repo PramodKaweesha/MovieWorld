@@ -582,6 +582,14 @@ body{font-family:'Poppins',sans-serif;background:var(--black);color:var(--light)
 .stream-err p{font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:2px;color:rgba(255,255,255,0.35);}
 .stream-err-retry{background:rgba(26,86,255,0.12);border:1px solid rgba(26,86,255,0.35);color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;padding:9px 22px;border-radius:8px;cursor:pointer;transition:all 0.2s;}
 .stream-err-retry:hover{background:var(--red);color:#fff;}
+/* Watch page mode (full separate page, not just an overlay) */
+#streamModal.has-extras{overflow-y:auto;}
+#streamModal.has-extras #streamPlayerWrap{flex:0 0 auto;width:100%;aspect-ratio:16/9;max-height:65vh;}
+.watch-below{display:none;padding:18px 20px 50px;background:#000;}
+.watch-below.show{display:block;}
+.watch-below-title{font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:3px;color:#fff;margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+.watch-below-title i{color:var(--red);}
+.watch-below-title:first-child{margin-top:0;}
 /* Stream section on detail page */
 .stream-section{margin:18px 0;background:linear-gradient(135deg,rgba(26,86,255,0.06),rgba(229,9,20,0.02));border:1px solid rgba(26,86,255,0.2);border-radius:14px;padding:18px 20px;}
 .stream-sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
@@ -2639,6 +2647,21 @@ function handleInitialRoute(){
     else setTimeout(renderTVPage,600);
     return;
   }
+  const mWatch=path.match(/^\/watch\/(.+)$/);
+  if(mWatch){
+    const id=decodeURIComponent(mWatch[1]);
+    function tryWatch(){
+      const item=(window.allContent||[]).find(c=>String(c.id)===String(id)||c.fbKey===id);
+      if(item){
+        openDetail(id,true,true);
+        openWatchPage(id,true);
+        history.replaceState({page:'watch',id:id},item.title,path);
+      }
+      else if(!window._fbReady)setTimeout(tryWatch,300);
+    }
+    tryWatch();
+    return;
+  }
   const mBrowse=path.match(/^\/browse\/([^/]+)(?:\/([^/]+))?$/);
   if(mBrowse){
     const part1=decodeURIComponent(mBrowse[1]);
@@ -2663,7 +2686,9 @@ function handleInitialRoute(){
 }
 function toTitleCase(s){return s.replace(/\w\S*/g,t=>t.charAt(0).toUpperCase()+t.substr(1).toLowerCase());}
 window.addEventListener('popstate',(e)=>{
+  if(!(e.state&&e.state.page==='watch'))closeStreamModal();
   if(e.state&&e.state.page==='detail'){openDetail(e.state.id,false,true);document.title=(window.allContent||[]).find(c=>String(c.id)===String(e.state.id)||c.fbKey===e.state.id)?.title+' — Movie World'||'Movie World';}
+  else if(e.state&&e.state.page==='watch'){openDetail(e.state.id,true,true);openWatchPage(e.state.id,true);}
   else if(e.state&&e.state.page==='adult'){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('adult-page').classList.add('active');document.title='18+ Content — Movie World';renderAdultPage();}
   else if(e.state&&e.state.page==='sinhaladub'){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('sinhaladub-page').classList.add('active');document.title='Sinhala Dub — Movie World';renderSinhalaDubPage();}
   else if(e.state&&e.state.page==='movies'){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('movies-page').classList.add('active');document.title='Movies — Movie World';renderMoviesPage();}
@@ -4907,12 +4932,16 @@ showWaPopup();
       <div class="stream-ql-group" id="streamQlGroup"></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <button class="stream-close-btn" onclick="closeStreamModal()"><i class="fas fa-times"></i> CLOSE</button>
+      <button class="stream-close-btn" id="streamCloseBtn" onclick="closeStreamModal()"><i class="fas fa-times"></i> CLOSE</button>
     </div>
   </div>
   <div id="streamPlayerWrap">
     <div class="stream-loading" id="streamLoading"><div class="spin"></div><p>LOADING PLAYER...</p></div>
     <div class="stream-err" id="streamErr"><i class="fas fa-exclamation-circle"></i><p>STREAM LOAD FAILED.</p><button class="stream-err-retry" onclick="_retryStream()"><i class="fas fa-redo"></i> RETRY</button></div>
+  </div>
+  <div id="watchBelow" class="watch-below">
+    <div id="watchSubtitleBox"></div>
+    <div id="watchDetailsBox"></div>
   </div>
 </div>
 
@@ -4923,8 +4952,31 @@ let _streamActiveQ='720';
 let _plyrInstance=null;
 let _hlsInstance=null;
 let _streamCurrentUrl='';
+let _streamSubtitleUrl='';
+let _subVttCache={};
 
-function openStreamModal(links, title){
+/* Convert an SRT file's text to WebVTT (browsers only accept .vtt in <track>) */
+function _srtToVtt(text){
+  let body=text.replace(/\r+/g,'').replace(/^\uFEFF/,'');
+  body=body.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g,'$1.$2');
+  return 'WEBVTT\n\n'+body.trim()+'\n';
+}
+/* Fetch a subtitle link (SRT or VTT), convert if needed, return a blob URL for <track> */
+async function _getVttUrl(srtUrl){
+  if(!srtUrl)return null;
+  if(_subVttCache[srtUrl])return _subVttCache[srtUrl];
+  try{
+    const res=await fetch(srtUrl);
+    if(!res.ok)throw new Error('fetch failed');
+    const text=await res.text();
+    const vtt=/^\s*WEBVTT/i.test(text)?text:_srtToVtt(text);
+    const url=URL.createObjectURL(new Blob([vtt],{type:'text/vtt'}));
+    _subVttCache[srtUrl]=url;
+    return url;
+  }catch(e){console.error('Subtitle load failed:',e);return null;}
+}
+
+function openStreamModal(links, title, opts={}){
   _streamLinks=links;
   _streamActiveQ=links['1080']?'1080':links['720']?'720':links['480']?'480':null;
   if(!_streamActiveQ){showToast('Stream link නැහැ!');return;}
@@ -4936,13 +4988,80 @@ function openStreamModal(links, title){
   `).join('');
   document.getElementById('streamModal').classList.add('open');
   document.body.style.overflow='hidden';
+  _streamSubtitleUrl=opts.subtitleUrl||'';
+  _setStreamCloseBtn(!!opts.showExtras);
+  renderWatchExtras(opts.item||null, !!opts.showExtras);
+  if(opts.pushRoute && opts.item){
+    const key=opts.item.id||opts.item.fbKey;
+    history.pushState({page:'watch',id:key},opts.item.title,'/watch/'+key);
+    document.title=opts.item.title+' — Movie World';
+  }
   _launchPlayer(links[_streamActiveQ]);
 }
 
 function closeStreamModal(){
   document.getElementById('streamModal').classList.remove('open');
+  document.getElementById('streamModal').classList.remove('has-extras');
   document.body.style.overflow='';
   _destroyPlayer();
+  _streamSubtitleUrl='';
+  const wb=document.getElementById('watchBelow');
+  if(wb){wb.classList.remove('show');}
+}
+
+/* Toggle the topbar button between a quick-preview CLOSE and a full watch-page BACK */
+function _setStreamCloseBtn(isPage){
+  const btn=document.getElementById('streamCloseBtn');
+  if(!btn)return;
+  if(isPage){btn.innerHTML='<i class="fas fa-arrow-left"></i> BACK TO HOME';btn.onclick=closeWatchPage;}
+  else{btn.innerHTML='<i class="fas fa-times"></i> CLOSE';btn.onclick=closeStreamModal;}
+}
+
+/* Fill in the subtitle-download + details area shown under the player in watch-page mode */
+function renderWatchExtras(item, show){
+  const sm=document.getElementById('streamModal');
+  const wb=document.getElementById('watchBelow');
+  if(!show||!item){sm.classList.remove('has-extras');wb.classList.remove('show');return;}
+  sm.classList.add('has-extras');
+  wb.classList.add('show');
+  const subBox=document.getElementById('watchSubtitleBox');
+  subBox.innerHTML=(item.srt&&item.srt.trim())?`
+    <div class="watch-below-title"><i class="fas fa-closed-captioning"></i> SUBTITLES</div>
+    <a href="${item.srt}" target="_blank" class="dl-item srt-item" download>
+      <div class="dl-icon"><i class="fas fa-closed-captioning"></i></div>
+      <div class="dl-info"><h4>🇱🇰 Sinhala Subtitle</h4><p>Auto-loaded on this player<span class="dot"></span>Tap to download the SRT file</p></div>
+      <i class="fas fa-chevron-right dl-arrow"></i>
+    </a>`:'';
+  const detBox=document.getElementById('watchDetailsBox');
+  const rows=[
+    item.lang?['🌐 Language',item.lang]:null,
+    item.year?['📅 Year',item.year]:null,
+    item.director?['🎬 Director',item.director]:null,
+    item.stars?['⭐ Stars',item.stars]:null,
+  ].filter(Boolean);
+  detBox.innerHTML=`
+    <div class="watch-below-title"><i class="fas fa-info-circle"></i> DETAILS</div>
+    <h3 style="font-family:'Bebas Neue',cursive;letter-spacing:1px;color:#fff;font-size:20px;margin-bottom:8px;">${item.title||''}</h3>
+    ${item.desc?`<p style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:10px;">${item.desc}</p>`:''}
+    ${rows.map(([l,v])=>`<div class="dt-info-row"><span class="dt-info-lbl">${l}</span><span class="dt-info-val">${v}</span></div>`).join('')}`;
+}
+
+/* Open the movie player as its own routed page (back button + URL both work) */
+function openWatchPage(id, fromPop=false){
+  const item=(window.allContent||[]).find(c=>String(c.id)===String(id)||c.fbKey===id);
+  if(!item)return;
+  currentContent=item;
+  const links={};
+  if(item.stream480&&item.stream480.trim())links['480']=item.stream480;
+  if(item.stream720&&item.stream720.trim())links['720']=item.stream720;
+  if(item.stream1080&&item.stream1080.trim())links['1080']=item.stream1080;
+  if(!Object.keys(links).length){showToast('Stream link නැහැ!');return;}
+  openStreamModal(links, item.title, {item, subtitleUrl:item.srt||'', showExtras:true, pushRoute:!fromPop});
+}
+function closeWatchPage(){
+  const cc=currentContent;
+  closeStreamModal();
+  if(cc){openDetail(cc.id||cc.fbKey,true);}else{showPage('home');}
 }
 
 function switchStreamQuality(q){
@@ -4990,7 +5109,7 @@ function _launchPlayer(url, resumeTime, autoResume){
   _showStreamLoading(true);
   _destroyPlayer();
 
-  const boot=()=>{
+  const boot=async ()=>{
     const w=document.getElementById('streamPlayerWrap');
     const vid=document.createElement('video');
     vid.setAttribute('playsinline','');
@@ -4998,6 +5117,15 @@ function _launchPlayer(url, resumeTime, autoResume){
     vid.crossOrigin='anonymous';
     vid.style.cssText='width:100%;height:100%;';
     w.appendChild(vid);
+
+    if(_streamSubtitleUrl){
+      const vttUrl=await _getVttUrl(_streamSubtitleUrl);
+      if(vttUrl){
+        const track=document.createElement('track');
+        track.kind='subtitles';track.label='සිංහල';track.srclang='si';track.src=vttUrl;track.default=true;
+        vid.appendChild(track);
+      }
+    }
 
     const isHls=/\.m3u8(\?|$)/i.test(url);
 
@@ -5081,7 +5209,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeStreamModal();
 function openDlPlayer(url,title){
   // Reuse the existing stream modal infrastructure
   const links={'480':url};
-  openStreamModal(links,title||currentContent?.title||'');
+  openStreamModal(links,title||currentContent?.title||'',{subtitleUrl:currentContent?.srt||''});
 }
 function closeDlPlayer(){closeStreamModal();}
 
@@ -5123,10 +5251,8 @@ function selectStreamQ(el,q){
   if(tag){tag.dataset.fixedFor=`Stream ${q}P`;applyReportBadges();}
 }
 function launchDetailStream(){
-  const el=document.getElementById('streamSection');
-  if(!el) return;
-  const links=JSON.parse(el.dataset.links||'{}');
-  openStreamModal(links, currentContent?.title||'');
+  if(!currentContent) return;
+  openWatchPage(currentContent.id||currentContent.fbKey);
 }
 
 /* ===== TMDB AUTO-FILL SYSTEM ===== */
