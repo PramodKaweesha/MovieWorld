@@ -4867,30 +4867,285 @@ document.addEventListener('click',function(e){
 showWaPopup();
 
 </script>
+<style>
+/* ===== EMBEDDED PLAYER MODAL (v2) ===== */
+#pvModal{display:none;position:fixed;inset:0;background:#05060a;z-index:10000;flex-direction:column;}
+#pvModal.open{display:flex;}
+.pv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#0a0d16;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;flex-wrap:wrap;}
+.pv-title{font-size:14px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw;color:#fff;font-family:'Rajdhani',sans-serif;}
+.pv-top-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.pv-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#fff;border-radius:7px;padding:7px 11px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:.15s;font-family:'Rajdhani',sans-serif;font-weight:600;}
+.pv-btn:hover{background:var(--blue,#1a56ff);border-color:var(--blue,#1a56ff);}
+.pv-btn.active{background:var(--red);border-color:var(--red);}
+.pv-btn.pv-close:hover{background:var(--red);border-color:var(--red);}
+.pv-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;position:relative;}
+.pv-frame{position:relative;background:#000;width:100%;height:100%;margin:auto;}
+.pv-stage.size-compact .pv-frame{max-width:900px;max-height:100%;aspect-ratio:16/9;}
+.pv-stage.size-theater .pv-frame{max-width:1400px;max-height:100%;aspect-ratio:16/9;}
+.pv-stage.size-full .pv-frame{max-width:100%;max-height:100%;aspect-ratio:auto;}
+.pv-frame video,.pv-frame .plyr{width:100%;height:100%;}
+.pv-frame .plyr{--plyr-color-main:#1a56ff;--plyr-video-background:#000;--plyr-badge-background:#1a56ff;--plyr-menu-background:rgba(10,14,26,0.97);--plyr-menu-color:#fff;--plyr-control-icon-size:18px;--plyr-control-spacing:10px;--plyr-tooltip-background:#111e35;--plyr-tooltip-color:#fff;--plyr-captions-font-size:20px;border-radius:0;}
+.pv-msg{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:20;background:rgba(0,0,0,0.75);}
+.pv-msg.show{display:flex;}
+.pv-spin{width:44px;height:44px;border-radius:50%;border:4px solid rgba(255,255,255,0.15);border-top-color:#1a56ff;animation:pvspin 0.8s linear infinite;}
+@keyframes pvspin{to{transform:rotate(360deg);}}
+.pv-msg p{font-size:13px;letter-spacing:1px;color:rgba(255,255,255,0.8);font-family:'Rajdhani',sans-serif;}
+.pv-retry{background:var(--red);border:none;color:#fff;padding:9px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;}
+.pv-bottom{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 14px;background:#0a0d16;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;}
+.pv-sep{width:1px;align-self:stretch;background:rgba(255,255,255,0.1);margin:0 2px;}
+.pv-time{font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;font-family:'Rajdhani',sans-serif;}
+.pv-spacer{flex:1;}
+select.pv-select{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:6px 8px;font-size:12px;}
+@media(max-width:640px){.pv-title{max-width:36vw;font-size:12px;}.pv-btn{padding:6px 8px;font-size:11px;}.pv-btn span.lbl{display:none;}}
+</style>
+
+<!-- ===== EMBEDDED PLAYER MODAL (v2) ===== -->
+<div id="pvModal">
+  <div class="pv-top">
+    <div class="pv-title" id="pvTitle">MOVIE WORLD</div>
+    <div class="pv-top-actions">
+      <select class="pv-select" id="pvQualitySelect" onchange="pvSwitchQuality(this.value)" style="display:none;"></select>
+      <button class="pv-btn" id="pvSizeCompactBtn" onclick="pvSetSize('compact')"><i class="fas fa-compress"></i><span class="lbl"> Compact</span></button>
+      <button class="pv-btn" id="pvSizeTheaterBtn" onclick="pvSetSize('theater')"><i class="fas fa-tv"></i><span class="lbl"> Theater</span></button>
+      <button class="pv-btn" id="pvSizeFullBtn" onclick="pvSetSize('full')"><i class="fas fa-expand"></i><span class="lbl"> Fill</span></button>
+      <button class="pv-btn" onclick="pvToggleFullscreen()"><i class="fas fa-expand-arrows-alt"></i><span class="lbl"> Fullscreen</span></button>
+      <button class="pv-btn pv-close" onclick="closeStreamModal()"><i class="fas fa-times"></i><span class="lbl"> Close</span></button>
+    </div>
+  </div>
+  <div class="pv-stage size-compact" id="pvStage">
+    <div class="pv-frame" id="pvFrame">
+      <div class="pv-msg show" id="pvLoading"><div class="pv-spin"></div><p>LOADING PLAYER...</p></div>
+      <div class="pv-msg" id="pvError"><i class="fas fa-exclamation-circle" style="font-size:28px;color:var(--red);"></i><p>STREAM LOAD FAILED.</p><button class="pv-retry" onclick="pvRetry()"><i class="fas fa-redo"></i> RETRY</button></div>
+    </div>
+  </div>
+  <div class="pv-bottom">
+    <button class="pv-btn" onclick="pvSkip(-10)" title="Back 10s"><i class="fas fa-undo"></i><span class="lbl"> 10s</span></button>
+    <button class="pv-btn" onclick="pvSkip(10)" title="Forward 10s"><i class="fas fa-redo"></i><span class="lbl"> 10s</span></button>
+    <span class="pv-time" id="pvTime">00:00 / 00:00</span>
+    <div class="pv-sep"></div>
+    <select class="pv-select" id="pvSpeedSelect" onchange="pvSetSpeed(this.value)" title="Playback speed">
+      <option value="0.5">0.5x</option><option value="0.75">0.75x</option><option value="1" selected>1x</option>
+      <option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option>
+    </select>
+    <button class="pv-btn" id="pvSubBtn" onclick="pvToggleSub()" style="display:none;"><i class="fas fa-closed-captioning"></i><span class="lbl"> Subtitle</span></button>
+    <div class="pv-spacer"></div>
+    <a class="pv-btn" id="pvDlBtn" href="#" download style="display:none;"><i class="fas fa-download"></i><span class="lbl"> Download</span></a>
+    <button class="pv-btn" onclick="pvReportBroken()"><i class="fas fa-flag"></i><span class="lbl"> Report</span></button>
+  </div>
+</div>
+
 <script>
-/* ===== STREAM PLAYER — opens the standalone player.html in a new tab ===== */
-function _buildPlayerUrl(links, title, srtUrl){
-  const params = new URLSearchParams();
-  params.set('title', title || '');
-  if(srtUrl) params.set('srt', srtUrl);
-  Object.keys(links).forEach(q=>{ if(links[q]) params.set('q'+q, links[q]); });
-  return 'player.html?' + params.toString();
-}
+/* ===== EMBEDDED PLAYER ENGINE (v2) — plays inside this same page ===== */
+let _pvLinks={}, _pvActiveQ=null, _pvTitle='', _pvSrtUrl='';
+let pvPlyr=null, pvHls=null, pvVideoEl=null, pvVttBlob=null, pvSubOn=true, pvTimeRAF=null;
+
 function openStreamModal(links, title, srtUrl){
   if(!links || !Object.keys(links).length){ showToast('Stream link නැහැ!'); return; }
-  const url = _buildPlayerUrl(links, title, srtUrl);
-  const win = window.open(url, '_blank');
-  if(!win){ window.location.href = url; } // popup blocked → open in same tab
+  _pvLinks = links; _pvTitle = title||''; _pvSrtUrl = srtUrl||'';
+  _pvActiveQ = links['1080']?'1080':links['720']?'720':links['480']?'480':null;
+  document.getElementById('pvTitle').textContent = _pvTitle || 'MOVIE WORLD';
+  const qSel = document.getElementById('pvQualitySelect');
+  const qKeys = Object.keys(links);
+  if(qKeys.length>1){
+    qSel.style.display='inline-block';
+    qSel.innerHTML = qKeys.map(q=>`<option value="${q}" ${q===_pvActiveQ?'selected':''}>${q}p</option>`).join('');
+  }else{ qSel.style.display='none'; }
+  document.getElementById('pvModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  pvSetSize(localStorage.getItem('mw_player_size')||'compact');
+  pvUpdateDlBtn();
+  pvLaunch(links[_pvActiveQ], 0, false);
 }
 function openStreamModalInNewTab(links, title, srtUrl){ openStreamModal(links, title, srtUrl); }
-function closeStreamModal(){ /* player now lives on its own page — nothing to close here */ }
-
-/* ===== DIRECT DOWNLOAD LINK PLAYER ===== */
+function closeStreamModal(){
+  document.getElementById('pvModal').classList.remove('open');
+  document.body.style.overflow='';
+  pvDestroy();
+}
 function openDlPlayer(url, title, srtUrl){
   const links = {'480': url};
   openStreamModal(links, title || currentContent?.title || '', srtUrl || currentContent?.srt || '');
 }
 function closeDlPlayer(){ closeStreamModal(); }
+
+function pvUpdateDlBtn(){
+  const dl=document.getElementById('pvDlBtn');
+  if(_pvActiveQ && _pvLinks[_pvActiveQ]){ dl.href=_pvLinks[_pvActiveQ]; dl.style.display='inline-flex'; }
+}
+function pvSetSize(mode){
+  const stage=document.getElementById('pvStage');
+  stage.classList.remove('size-compact','size-theater','size-full');
+  stage.classList.add('size-'+mode);
+  ['Compact','Theater','Full'].forEach(m=>document.getElementById('pvSize'+m+'Btn').classList.toggle('active', m.toLowerCase()===mode));
+  try{ localStorage.setItem('mw_player_size', mode); }catch(e){}
+}
+function pvToggleFullscreen(){
+  const frame=document.getElementById('pvFrame');
+  if(!document.fullscreenElement){ frame.requestFullscreen?.(); } else { document.exitFullscreen?.(); }
+}
+function pvShowLoading(show){
+  document.getElementById('pvLoading').classList.toggle('show', show);
+  if(show) document.getElementById('pvError').classList.remove('show');
+}
+function pvShowError(){
+  document.getElementById('pvLoading').classList.remove('show');
+  document.getElementById('pvError').classList.add('show');
+}
+function pvRetry(){ if(_pvActiveQ) pvLaunch(_pvLinks[_pvActiveQ]); }
+
+function pvSrtToVtt(txt){
+  let vtt=txt.replace(/\r/g,'').replace(/^\uFEFF/,'');
+  vtt=vtt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g,'$1.$2');
+  return 'WEBVTT\n\n'+vtt;
+}
+async function pvBuildVtt(url){
+  if(!url||!url.trim())return null;
+  try{
+    const res=await fetch(url); if(!res.ok)throw new Error('fetch failed');
+    const txt=await res.text();
+    const blob=new Blob([pvSrtToVtt(txt)],{type:'text/vtt'});
+    return URL.createObjectURL(blob);
+  }catch(e){ console.error('subtitle load failed',e); return null; }
+}
+function pvDestroy(){
+  try{ if(pvHls){ pvHls.destroy(); pvHls=null; } }catch(e){}
+  try{ if(pvPlyr){ pvPlyr.destroy(); pvPlyr=null; } }catch(e){}
+  try{ if(pvVttBlob){ URL.revokeObjectURL(pvVttBlob); pvVttBlob=null; } }catch(e){}
+  if(pvTimeRAF){ cancelAnimationFrame(pvTimeRAF); pvTimeRAF=null; }
+  document.getElementById('pvFrame').querySelectorAll('video,.plyr').forEach(e=>e.remove());
+}
+let _pvHasSubtitle=false;
+function pvLaunch(url, resumeTime, autoResume){
+  if(!url){ pvShowError(); return; }
+  pvShowLoading(true);
+  pvDestroy();
+  _pvHasSubtitle=false;
+  document.getElementById('pvSubBtn').style.display='none';
+
+  const boot = async ()=>{
+    const frame=document.getElementById('pvFrame');
+    const vid=document.createElement('video');
+    vid.setAttribute('playsinline',''); vid.setAttribute('webkit-playsinline','');
+    vid.crossOrigin='anonymous'; vid.style.cssText='width:100%;height:100%;';
+    pvVideoEl=vid;
+    if(_pvSrtUrl){
+      const vtt=await pvBuildVtt(_pvSrtUrl);
+      if(vtt){
+        pvVttBlob=vtt;
+        const track=document.createElement('track');
+        track.kind='subtitles'; track.label='Sinhala'; track.srclang='si'; track.src=vtt; track.default=true;
+        vid.appendChild(track);
+        _pvHasSubtitle=true;
+        document.getElementById('pvSubBtn').style.display='inline-flex';
+        document.getElementById('pvSubBtn').classList.add('active');
+      }
+    }
+    frame.appendChild(vid);
+    const isHls=/\.m3u8(\?|$)/i.test(url);
+    const initPlyr=()=>{
+      try{
+        pvPlyr=new Plyr(vid,{
+          controls:['play-large','play','progress','current-time','mute','volume','captions','pip','fullscreen'],
+          autoplay:true, clickToPlay:true,
+          captions:{active:_pvHasSubtitle&&pvSubOn, language:'si', update:true}
+        });
+        pvPlyr.on('ready',()=>{ pvShowLoading(false); pvSyncTimeLoop(); pvRestoreResume(url); });
+        pvPlyr.on('playing',()=>pvShowLoading(false));
+        pvPlyr.on('waiting',()=>pvShowLoading(true));
+        pvPlyr.on('canplay',()=>pvShowLoading(false));
+        pvPlyr.on('error',()=>pvShowError());
+        if(resumeTime){
+          vid.addEventListener('loadedmetadata',()=>{
+            try{ pvPlyr.currentTime=resumeTime; }catch(e){}
+            if(autoResume){ try{ pvPlyr.play(); }catch(e){} }
+          },{once:true});
+        }
+        vid.addEventListener('timeupdate',()=>pvSaveResume(url));
+        setTimeout(()=>{ if(document.getElementById('pvLoading').classList.contains('show')) pvShowLoading(false); },4500);
+      }catch(e){ console.error(e); pvShowError(); }
+    };
+    if(isHls){
+      if(vid.canPlayType('application/vnd.apple.mpegurl')){ vid.src=url; initPlyr(); }
+      else{
+        pvLoadHlsJs(()=>{
+          try{
+            pvHls=new Hls({maxBufferLength:30, enableWorker:true});
+            pvHls.loadSource(url); pvHls.attachMedia(vid);
+            pvHls.on(Hls.Events.MANIFEST_PARSED, initPlyr);
+            pvHls.on(Hls.Events.ERROR,(evt,data)=>{ if(data&&data.fatal) pvShowError(); });
+          }catch(e){ console.error(e); pvShowError(); }
+        });
+      }
+    }else{ vid.src=url; initPlyr(); }
+  };
+  if(window.Plyr){ boot(); return; }
+  if(!document.getElementById('plyr-css-v2')){
+    const lnk=document.createElement('link'); lnk.id='plyr-css-v2';
+    lnk.rel='stylesheet'; lnk.href='https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css';
+    document.head.appendChild(lnk);
+  }
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js';
+  s.onload=boot; s.onerror=pvShowError;
+  document.head.appendChild(s);
+}
+function pvLoadHlsJs(cb){
+  if(window.Hls){ cb(); return; }
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js';
+  s.onload=cb; s.onerror=pvShowError;
+  document.head.appendChild(s);
+}
+function pvResumeKey(url){ return 'mw_resume_'+url; }
+function pvSaveResume(url){ if(!pvPlyr)return; try{ localStorage.setItem(pvResumeKey(url), Math.floor(pvPlyr.currentTime)); }catch(e){} }
+function pvRestoreResume(url){
+  try{
+    const t=parseFloat(localStorage.getItem(pvResumeKey(url)));
+    if(t>5 && pvPlyr && pvPlyr.duration && t<pvPlyr.duration-10){ pvPlyr.currentTime=t; }
+  }catch(e){}
+}
+function pvSwitchQuality(q){
+  if(!_pvLinks[q]) return;
+  _pvActiveQ=q;
+  const resumeTime=pvPlyr?pvPlyr.currentTime:0;
+  const wasPlaying=pvPlyr?!pvPlyr.paused:true;
+  pvLaunch(_pvLinks[q], resumeTime, wasPlaying);
+  pvUpdateDlBtn();
+}
+function pvSkip(sec){ if(pvPlyr) pvPlyr.currentTime=Math.max(0, pvPlyr.currentTime+sec); }
+function pvSetSpeed(v){ if(pvPlyr) pvPlyr.speed=parseFloat(v); }
+function pvToggleSub(){
+  pvSubOn=!pvSubOn;
+  document.getElementById('pvSubBtn').classList.toggle('active', pvSubOn);
+  if(pvPlyr){ try{ pvPlyr.toggleCaptions(pvSubOn); }catch(e){} }
+}
+function pvFmtTime(t){ if(!isFinite(t)||t<0)t=0; const m=Math.floor(t/60), s=Math.floor(t%60); return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function pvSyncTimeLoop(){
+  if(pvTimeRAF) cancelAnimationFrame(pvTimeRAF);
+  const tick=()=>{
+    if(pvPlyr){ document.getElementById('pvTime').textContent=pvFmtTime(pvPlyr.currentTime)+' / '+pvFmtTime(pvPlyr.duration||0); }
+    pvTimeRAF=requestAnimationFrame(tick);
+  };
+  tick();
+}
+function pvReportBroken(){
+  const msg=encodeURIComponent('Broken stream link report — '+_pvTitle+' ('+(_pvActiveQ||'')+'p): '+(_pvLinks[_pvActiveQ]||''));
+  window.open('https://wa.me/?text='+msg, '_blank');
+}
+document.addEventListener('keydown', e=>{
+  if(!document.getElementById('pvModal').classList.contains('open')) return;
+  if(e.key==='Escape'){ closeStreamModal(); return; }
+  if(!pvPlyr) return;
+  if(e.key===' '){ e.preventDefault(); pvPlyr.togglePlay(); }
+  else if(e.key==='ArrowRight'){ pvSkip(10); }
+  else if(e.key==='ArrowLeft'){ pvSkip(-10); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); pvPlyr.volume=Math.min(1, pvPlyr.volume+0.1); }
+  else if(e.key==='ArrowDown'){ e.preventDefault(); pvPlyr.volume=Math.max(0, pvPlyr.volume-0.1); }
+  else if(e.key==='f'||e.key==='F'){ pvToggleFullscreen(); }
+  else if(e.key==='m'||e.key==='M'){ pvPlyr.muted=!pvPlyr.muted; }
+});
+
+</script>
 
 /* ===== DETAIL PAGE STREAM SECTION RENDER ===== */
 function renderStreamSection(c){
