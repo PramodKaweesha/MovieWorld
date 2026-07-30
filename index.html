@@ -5758,5 +5758,20 @@ function setVal(id, val) {
   document.querySelectorAll('img[src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOW=="]').forEach(function(el){el.src=_ld;});
 })();
 </script>
+<!-- ===== ADSTERRA: Direct Link (fallback, fires once per session on first tap/click) ===== -->
+<script>
+(function(){
+  var DIRECT_LINK_URL = 'https://dyingefforlessefforlessours.com/xrjbfp0x?key=e55b684a2f1cb44f4c91bfd7e080c519';
+  var FLAG = 'mw_directlink_fired';
+  function fireDirectLinkOnce(){
+    if(sessionStorage.getItem(FLAG)) return;
+    sessionStorage.setItem(FLAG, '1');
+    window.open(DIRECT_LINK_URL, '_blank');
+  }
+  document.addEventListener('click', fireDirectLinkOnce, {once:true, capture:true});
+  document.addEventListener('touchend', fireDirectLinkOnce, {once:true, capture:true});
+})();
+</script>
+
 </body>
   </html>
